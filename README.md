@@ -10,7 +10,7 @@ python3 -m main <Unlabeled set (U)> <output file> <alpha (ignored)> <budget> <nd
 
 where:
 
-- Unlabeled set is contains the inut vectors in a libsvm format
+- Unlabeled set contains the input vectors in libsvm format
 - ndim is the number of dimensions of the input vectors
 - distance_threshold is a tuning parameter that defines the maximum distance to consider two instances redundant
 - n_neighbors (default 100) is the amount of neighbors to consider when calculating pairwise distances between instances.
