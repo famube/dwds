@@ -69,9 +69,50 @@ def info_amount2(mat, df, cache, ndocs):
         s += val
     return s
 
+
+def dwds_dist_thresh(X_U, density, dist_thresh, budget):
+    selected = []
+    S = []
+    scoreU = density
+    while len(selected) < budget:
+        ok = True
+        s = np.argmax(scoreU)
+        if scoreU[s] == -INF: #No more candidates
+            break
+        scoreU[s] = -INF #Grants that U[s] wont be selected again
+    
+        if len(S) > 0:
+            dist_selected = cosine_distances(vstack(S), X_U[s])[:,0]
+            if np.min(dist_selected) < dist_thresh:
+                ok = False
+        if ok:
+            selected.append(s)
+            S.append(X_U[s])
+     return selected
+
+
+def dwds_no_dist_thresh(X_U, density, alpha, budget):
+    selected = []
+    S = []
+    while len(selected) < budget:
+        if len(S) > 0:
+            dist_selected = cosine_distances(vstack(S), X_U[s])[:,0]
+            mean_dist = np.mean(dist_selected)
+            scoreU = alpha * mean_dist + (1 - alpha) * density
+        else:
+            scoreU = density
+        s = np.argmax(scoreU)
+        if scoreU[s] == -INF: #No more candidates
+            break
+        scoreU[s] = -INF #Grants that U[s] wont be selected again
+        selected.append(s)
+        S.append(X_U[s])
+     return selected
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 7:
-        print ("usage: %s <Unlabeled set (U)> <output file> <alpha (ignored)> <budget> <ndim> <distance threshold> [#neighbors]" % sys.argv[0])
+        print ("usage: %s <Unlabeled set (U)> <output file> <alpha [0,1], 0 if using distance threshold)> <budget> <ndim> <distance threshold> [#neighbors]" % sys.argv[0])
         sys.exit(-1)
 
 
@@ -166,24 +207,10 @@ S = []
 
 #score = alpha * non_redundancy + beta * uncertainty + gamma * info_density
 scoreU = density 
-
-while len(selected) < budget:
-
-    ok = True
-    s = np.argmax(scoreU)
-    if scoreU[s] == -INF: #No more candidates
-        break
-    scoreU[s] = -INF #Grants that U[s] wont be selected again
-
-
-    if len(S) > 0:
-        dist_selected = cosine_distances(vstack(S), X_U[s])[:,0]
-        if np.min(dist_selected) < dist_thresh:
-            ok = False
-    if ok:
-        selected.append(s)
-        S.append(X_U[s])
-
+if alpha == 0:
+    selected = dwds_dist_threshold(X_U, density, dist_thresh, budget)
+else:
+    selected = dwds_no_dist_threshold(X_U, density, alpha, budget)
 
 # Print selected
 for i in selected:
