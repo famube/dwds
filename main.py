@@ -206,7 +206,7 @@ selected = []
 S = []
 
 #score = alpha * non_redundancy + beta * uncertainty + gamma * info_density
-scoreU = density 
+
 if alpha == 0:
     selected = dwds_dist_threshold(X_U, density, dist_thresh, budget)
 else:
