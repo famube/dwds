@@ -12,7 +12,8 @@ where:
 
 - Unlabeled set contains the input vectors in libsvm format
 - ndim is the number of dimensions of the input vectors
-- distance_threshold is a tuning parameter that defines the maximum distance to consider two instances redundant
+- distance_threshold (ignored if alpha>0) is a tuning parameter that defines the maximum distance to consider two instances redundant 
+- alpha is a tuning parameter ranging in [0, 1] that controls the weight given to a criterion based on the average distance to selected instances. If alpha=0 this criterion wont be used and the distance threshold will be used instead.
 - n_neighbors (default 100) is the amount of neighbors to consider when calculating pairwise distances between instances.
 
 
