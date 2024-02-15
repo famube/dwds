@@ -70,7 +70,7 @@ def info_amount2(mat, df, cache, ndocs):
     return s
 
 
-def dwds_dist_thresh(X_U, density, dist_thresh, budget):
+def dwds_dist_threshold(X_U, density, dist_thresh, budget):
     selected = []
     S = []
     scoreU = density
@@ -88,26 +88,28 @@ def dwds_dist_thresh(X_U, density, dist_thresh, budget):
         if ok:
             selected.append(s)
             S.append(X_U[s])
-     return selected
+    return selected
 
 
-def dwds_no_dist_thresh(X_U, density, alpha, budget):
+def dwds_no_dist_threshold(X_U, density, alpha, budget):
     selected = []
     S = []
     while len(selected) < budget:
         if len(S) > 0:
-            dist_selected = cosine_distances(vstack(S), X_U[s])[:,0]
-            mean_dist = np.mean(dist_selected)
+            dist_selected = cosine_distances(X_U, vstack(S))
+            mean_dist = np.mean(dist_selected, axis=1)
+            #print(mean_dist.shape)
             scoreU = alpha * mean_dist + (1 - alpha) * density
         else:
             scoreU = density
+        for x in selected:
+            scoreU[x] = -INF #Grants that U[s] wont be selected again
         s = np.argmax(scoreU)
-        if scoreU[s] == -INF: #No more candidates
-            break
-        scoreU[s] = -INF #Grants that U[s] wont be selected again
         selected.append(s)
+        scoreU[s] = -INF
         S.append(X_U[s])
-     return selected
+
+    return selected
 
 
 if __name__ == "__main__":
@@ -208,8 +210,10 @@ S = []
 #score = alpha * non_redundancy + beta * uncertainty + gamma * info_density
 
 if alpha == 0:
+    print('Using distance threshold')
     selected = dwds_dist_threshold(X_U, density, dist_thresh, budget)
 else:
+    print('Using alpha weight for distance')
     selected = dwds_no_dist_threshold(X_U, density, alpha, budget)
 
 # Print selected
